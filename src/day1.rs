@@ -1,44 +1,30 @@
 #[aoc(day1, part1)]
 pub fn part1(input: &str) -> u32 {
-    let mut sum = 0;
-
-    for line in input.lines() {
-        sum += get_first_digit(line.chars()) * 10;
-        sum += get_first_digit(line.chars().rev());
-    }
-
-    return sum;
+    input.lines().fold(0, |sum, line| {
+        sum + first_digit(line.chars()) * 10 + first_digit(line.chars().rev())
+    })
 }
 
-fn get_first_digit<I>(chars: I) -> u32
+fn first_digit<I>(chars: I) -> u32
 where
     I: Iterator<Item = char>,
 {
-    for chr in chars {
-        if chr.is_numeric() {
-            if let Some(num) = chr.to_digit(10) {
-                return num;
-            }
-        }
-    }
-
-    return 0;
+    chars
+        .filter(|chr| chr.is_ascii_digit())
+        .map(|chr| chr.to_digit(10).unwrap())
+        .next()
+        .unwrap()
 }
 
 #[aoc(day1, part2)]
 pub fn part2(input: &str) -> u32 {
-    let mut sum = 0;
-
-    for line in input.lines() {
-        let first = get_first_digit_or_digit_word(|| line.chars(), false);
-        let second = get_first_digit_or_digit_word(|| line.chars().rev(), true);
-        sum += first * 10 + second;
-    }
-
-    return sum;
+    input.lines().fold(0, |sum, line| {
+        sum + first_digit_or_numword(|| line.chars(), false) * 10
+            + first_digit_or_numword(|| line.chars().rev(), true)
+    })
 }
 
-fn get_first_digit_or_digit_word<I, F>(chars_builder: F, reverse: bool) -> u32
+fn first_digit_or_numword<I, F>(chars_builder: F, reverse: bool) -> u32
 where
     I: Iterator<Item = char>,
     F: Fn() -> I,
